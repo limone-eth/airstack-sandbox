@@ -14,6 +14,7 @@ export interface TokenTransferIdentity {
         profileName: string;
     }[];
     domains: {
+        name?: string;
         dappName: string;
     }[];
 }
