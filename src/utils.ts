@@ -11,3 +11,19 @@ export function breakIntoChunks<T>(array, chunkSize): T[] {
     }
     return chunks;
 }
+
+export function removeDuplicatesByProperty<T>(array: T[], property: string): T[] {
+    const uniqueObjects = {};
+    const result = [];
+
+    for (let i = 0; i < array.length; i++){
+        const item = array[i];
+        const key = item[property];
+        if (!uniqueObjects[key]) {
+            uniqueObjects[key] = true;
+            result.push(item);
+        }
+    }
+
+    return result;
+}

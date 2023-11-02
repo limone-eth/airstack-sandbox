@@ -1,10 +1,10 @@
 import {Poaps, SocialPoapOwner, SocialPoaps} from "./interface";
 import {GetAllAddressesSocialsAndENSOfPOAP, GetAllPOAPs} from "./queries";
 
-import {breakIntoChunks} from "../../utils";
+import {breakIntoChunks, removeDuplicatesByProperty} from "../../utils";
 import {paginatedQuery} from "../index";
 
-export const GetAddressesWithPOAPsInCommon = async(walletAddress: string) => {
+export const GetAddressesWithPOAPsInCommon = async(walletAddress: string): Promise<SocialPoapOwner[]> => {
     const walletPOAPs = await paginatedQuery<{Poaps: Poaps}>(GetAllPOAPs, {address: walletAddress})
     const poapEventIds = walletPOAPs.map(obj => obj.Poaps.Poap?.map(p => p.eventId).flat()).flat().filter(Boolean)
     const chunkEventIds = breakIntoChunks(poapEventIds, 50);
@@ -16,6 +16,5 @@ export const GetAddressesWithPOAPsInCommon = async(walletAddress: string) => {
         const poapOwners: SocialPoapOwner[] = rawPoapOwners.map(obj => obj.Poaps.Poap.map(poap => poap.owner).flat()).flat().filter(Boolean)
         identities.push(poapOwners);
     }
-    console.log(identities);
-    return walletPOAPs
+    return removeDuplicatesByProperty<SocialPoapOwner>(identities.flat(), "identity");
 };
