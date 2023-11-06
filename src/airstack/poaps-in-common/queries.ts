@@ -55,6 +55,7 @@ export const GetAllAddressesSocialsAndENSOfPOAP = gql`
         }
         poapEvent {
           eventId
+          isVirtualEvent
         }
         tokenId
       }

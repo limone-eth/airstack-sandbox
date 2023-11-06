@@ -6,7 +6,7 @@ import {paginatedQuery} from "../index";
 
 export const GetAddressesWithPOAPsInCommon = async(walletAddress: string): Promise<SocialPoapOwner[]> => {
     const walletPOAPs = await paginatedQuery<{Poaps: Poaps}>(GetAllPOAPs, {address: walletAddress})
-    const poapEventIds = walletPOAPs.map(obj => obj.Poaps.Poap?.map(p => p.eventId).flat()).flat().filter(Boolean)
+    const poapEventIds = walletPOAPs.map(obj => obj.Poaps.Poap?.filter(poap => !poap?.poapEvent?.isVirtualEvent).map(p => p.eventId).flat()).flat().filter(Boolean)
     const chunkEventIds = breakIntoChunks(poapEventIds, 50);
     // this might endup having duplicates
     const identities: SocialPoapOwner[][] = []

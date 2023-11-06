@@ -25,6 +25,7 @@ export interface Poap {
         endDate: string;
         country: string;
         city: string;
+        isVirtualEvent: boolean;
         contentValue: {
             image: {
                 extraSmall: string;
@@ -79,6 +80,7 @@ export interface SocialPoap {
     };
     poapEvent: {
         eventId: number;
+        isVirtualEvent: boolean;
     };
     tokenId: number;
 }
