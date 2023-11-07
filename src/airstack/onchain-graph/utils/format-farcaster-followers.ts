@@ -1,31 +1,47 @@
-import {FarcasterFollowerAddress, FollowFarcaster} from "../functions/fetch-farcaster-followers";
+import {FarcasterFollowerAddress, FollowFarcaster, RecommendedUser} from "../interfaces/recommended-user";
 
-function formatFarcasterFollowersData(followers: FarcasterFollowerAddress[]): FarcasterFollowerAddress[] {
-    const recommendedUsers: FarcasterFollowerAddress[] = [];
+// This function formats the data of Farcaster followers
+function formatFarcasterFollowersData(followers: FarcasterFollowerAddress[], existingUsers: RecommendedUser[] = []): FarcasterFollowerAddress[] {
+    if (!followers || followers?.length === 0) {
+        return [...existingUsers]
+    }
 
+    // Initialize an array to store the recommended users
+    const recommendedUsers: FarcasterFollowerAddress[] = [...existingUsers];
+
+    // Loop through each follower
     for (let i = 0; i < followers.length; i++){
         const follower = followers[i];
+
+        // Find the index of the follower in the recommendedUsers array
         const existingUserIndex = recommendedUsers.findIndex(
             ({ addresses: recommendedUsersAddresses }) =>
+                // Check if the follower's address is in the recommended user's addresses
                 recommendedUsersAddresses?.some?.(address =>
                     follower.addresses?.includes?.(address)
                 )
         );
 
-        const following = Boolean(follower?.mutualFollowing?.Following?.length);
+        // Check if the follower is following any users
+        const following = Boolean(follower?.mutualFollowing?.Follower?.length);
 
+        // If the follower is already in the recommendedUsers array
         if (existingUserIndex !== -1) {
-            const follows: FollowFarcaster = recommendedUsers?.[existingUserIndex]?.follows;
+            // Get the follow object of the existing user
+            const follows: FollowFarcaster = recommendedUsers?.[existingUserIndex]?.follows ?? {followedOnFarcaster: false, followingOnFarcaster: false};
 
+            // Update the follow object
             follows.followedOnFarcaster = true;
             follows.followingOnFarcaster = follows.followingOnFarcaster || following;
 
+            // Update the existing user in the recommendedUsers array
             recommendedUsers[existingUserIndex] = {
                 ...follower,
                 ...recommendedUsers[existingUserIndex],
                 follows
             };
         } else {
+            // If the follower is not in the recommendedUsers array, add them
             recommendedUsers.push({
                 ...follower,
                 follows: {
@@ -35,6 +51,8 @@ function formatFarcasterFollowersData(followers: FarcasterFollowerAddress[]): Fa
             });
         }
     }
+
+    // Return the array of recommended users
     return recommendedUsers;
 }
 

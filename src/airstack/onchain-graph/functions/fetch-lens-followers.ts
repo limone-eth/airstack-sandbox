@@ -1,29 +1,11 @@
 import {gql} from "@apollo/client/core";
 
-import {FollowLens} from "./fetch-lens-followings";
-
 import {paginatedQuery} from "../../index";
-import {RecommendedUser} from "../interfaces/recommended-user";
+import {LensFollowerAddress, RecommendedUser} from "../interfaces/recommended-user";
 import formatLensFollowersData from "../utils/format-lens-followers";
 
-interface FollowerAddress extends RecommendedUser {
-    mutualFollowing: {
-        Following: {
-            followingAddress: {
-                socials: {
-                    profileName: string;
-                };
-            };
-        }[];
-    };
-}
-
-export interface LensFollowerAddress extends FollowerAddress {
-    follows?: FollowLens;
-}
-
 interface Follower {
-    followerAddress: FollowerAddress;
+    followerAddress: LensFollowerAddress;
 }
 
 interface SocialFollowersData {
@@ -72,13 +54,13 @@ query MyQuery($user: Identity!) {
 }
 `;
 
-const fetchLensFollowers = async (address: string): Promise<LensFollowerAddress[]> => {
+const fetchLensFollowers = async (address: string, existingUsers: RecommendedUser[] = []): Promise<LensFollowerAddress[]> => {
 
     const lensFollowersResponse = await paginatedQuery<SocialFollowersData>(socialFollowersQuery, {
         user: address,
     })
 
-    return lensFollowersResponse.flatMap(r => r.SocialFollowers.Follower ? formatLensFollowersData(r.SocialFollowers.Follower.map(follower => follower.followerAddress)) : [])
+    return formatLensFollowersData(lensFollowersResponse.flatMap(r => r.SocialFollowers?.Follower?.flatMap(f => f.followerAddress)).filter(Boolean), existingUsers)
 };
 
 export default fetchLensFollowers;

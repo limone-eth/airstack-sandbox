@@ -1,7 +1,7 @@
 import {gql} from "@apollo/client/core";
 
 import {paginatedQuery} from "../../index";
-import {RecommendedUser} from "../interfaces/recommended-user";
+import {PoapRecommendedUser, RecommendedUser} from "../interfaces/recommended-user";
 import formatPoapsData from "../utils/format-poaps";
 
 interface PoapEvent {
@@ -98,16 +98,28 @@ query MyQuery($eventIds: [String!]) {
 }
 `;
 
-const fetchPoapsData = async (address: string): Promise<PoapUser[]> => {
+export const fetchPoapHolders = async (eventId: string) => paginatedQuery<PoapHoldersDataResponse>(poapsByEventIdsQuery,
+        { eventIds: [eventId] })
+
+const fetchPoapsData = async (address: string, existingUsers: RecommendedUser[] = []): Promise<PoapRecommendedUser[]> => {
     const poapEventsResponse = (await paginatedQuery<PoapDataResponse>(userPoapsEventIdsQuery,
         { address }));
-    const poapEventIds = poapEventsResponse.flatMap(r => r.Poaps.Poap?.filter(poap => !poap.poapEvent.isVirtualEvent)
+    let poapEventIds = poapEventsResponse.flatMap(r => r.Poaps.Poap?.filter(poap => !poap.poapEvent.isVirtualEvent)
         .map(poap => poap.eventId) ?? []);
 
-    const poapHoldersResponse = await (await paginatedQuery<PoapHoldersDataResponse>(poapsByEventIdsQuery,
-        { eventIds: poapEventIds }))
+    poapEventIds = [
+        "107809",
+        "148642",
+        "101181",
+        "143724",
+        "144275",
+        "141589",
+        "103093"
+    ]
+    const poapHoldersResponse = await paginatedQuery<PoapHoldersDataResponse>(poapsByEventIdsQuery,
+        { eventIds: poapEventIds })
 
-    return poapHoldersResponse.flatMap(r => formatPoapsData(r.Poaps.Poap));
+    return formatPoapsData(poapHoldersResponse.flatMap(r => r.Poaps.Poap), existingUsers);
 };
 
 export default fetchPoapsData;

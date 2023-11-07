@@ -1,29 +1,11 @@
 import {gql} from "@apollo/client/core";
 
-import {FollowFarcaster} from "./fetch-farcaster-followers";
-
 import {paginatedQuery} from "../../index";
-import {RecommendedUser} from "../interfaces/recommended-user";
+import {FarcasterFollowingAddress, RecommendedUser} from "../interfaces/recommended-user";
 import formatFarcasterFollowingsData from "../utils/format-farcaster-following";
 
-interface FollowingAddress extends RecommendedUser {
-    mutualFollower: {
-        Follower: {
-            followerAddress: {
-                socials: {
-                    profileName: string;
-                };
-            };
-        }[];
-    };
-}
-
-export interface FarcasterFollowingAddress extends FollowingAddress {
-    follows?: FollowFarcaster;
-}
-
 interface Following {
-    followingAddress: FollowingAddress;
+    followingAddress: FarcasterFollowingAddress;
 }
 
 interface SocialFollowingsData {
@@ -72,12 +54,11 @@ query MyQuery($user: Identity!) {
 }
 `;
 
-const fetchFarcasterFollowings = async (address: string): Promise<FarcasterFollowingAddress[]> => {
-    const farcasterFollowersResponse = await paginatedQuery<SocialFollowingsData>(socialFollowingsQuery, {
+const fetchFarcasterFollowings = async (address: string, existingUsers: RecommendedUser[] = []): Promise<FarcasterFollowingAddress[]> => {
+    const farcasterFollowingsResponse = await paginatedQuery<SocialFollowingsData>(socialFollowingsQuery, {
         user: address,
     })
-
-    return farcasterFollowersResponse.flatMap(r => r.SocialFollowings.Following? formatFarcasterFollowingsData(r.SocialFollowings.Following.map(following => following.followingAddress)) : []);
+    return formatFarcasterFollowingsData(farcasterFollowingsResponse.flatMap(r => r.SocialFollowings?.Following?.flatMap(f => f.followingAddress)).filter(Boolean), existingUsers)
 };
 
 export default fetchFarcasterFollowings;

@@ -4,7 +4,7 @@ import {init} from "@airstack/node";
 import {fetchOnChainGraphData} from "./airstack/onchain-graph";
 
 export const main = async () => {
-    await init(process.env.AIRSTACK_API_KEY, 'dev');
+    init(process.env.AIRSTACK_API_KEY, 'dev');
     console.time("start")
     const recommendedUsers = await fetchOnChainGraphData("limone.eth")
     console.timeEnd("start")

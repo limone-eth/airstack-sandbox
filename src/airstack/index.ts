@@ -21,8 +21,6 @@ export const paginatedQuery = async <T>(query: DocumentNode, variables?: Variabl
     // Determine whether to fetch the next page
     let shouldFetchNextPage = response.hasNextPage;
 
-    return allData;
-
     // Counter to track the number of API calls
     // let numCalls = 1;
 

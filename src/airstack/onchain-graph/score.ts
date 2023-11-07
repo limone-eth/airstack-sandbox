@@ -1,8 +1,10 @@
-import {FarcasterFollowerAddress} from "./functions/fetch-farcaster-followers";
-import {FarcasterFollowingAddress} from "./functions/fetch-farcaster-followings";
-import {LensFollowerAddress} from "./functions/fetch-lens-followers";
-import {LensFollowingAddress} from "./functions/fetch-lens-followings";
 import {PoapUser} from "./functions/fetch-poaps";
+import {
+    FarcasterFollowerAddress,
+    FarcasterFollowingAddress,
+    LensFollowerAddress,
+    LensFollowingAddress
+} from "./interfaces/recommended-user";
 
 const defaultScoreMap = {
     followedByOnLens: 5,
@@ -52,19 +54,7 @@ const calculatingScore = (user: PoapUser | FarcasterFollowerAddress | FarcasterF
     if ((user as FarcasterFollowerAddress).follows?.followedOnFarcaster) {
         score += scoreMap.followedByOnFarcaster;
     }
-    let uniquePoaps = [];
     if ((user as PoapUser).poaps) {
-        const existingPoaps = {};
-        uniquePoaps = (user as PoapUser).poaps.filter((poaps) => {
-            if (poaps?.eventId && existingPoaps[poaps?.eventId]) {
-                return false;
-            }
-            if (poaps?.eventId) {
-                existingPoaps[poaps?.eventId] = true;
-            }
-            return true;
-        });
-        console.log(uniquePoaps)
         score += scoreMap.commonPoaps * (user as PoapUser).poaps.length;
     }
 
