@@ -9,14 +9,25 @@ import sortByScore from "./sort";
 
 export const fetchOnChainGraphData = async (address: string) => {
     let recommendedUsers: RecommendedUser[] = []
+
+    console.log("Fetching Common Poaps Holders...")
     recommendedUsers = await fetchPoapsData(address);
+
+    console.log("Fetching Farcaster Followings...")
     recommendedUsers = await fetchFarcasterFollowings(address, recommendedUsers);
+
+    console.log("Fetching Lens Followings...")
     recommendedUsers = await fetchLensFollowings(address, recommendedUsers);
+
+    console.log("Fetching Farcaster Followers...")
     recommendedUsers = await fetchFarcasterFollowers(address, recommendedUsers);
+
+    console.log("Fetching Lens Followers...")
     recommendedUsers = await fetchLensFollowers(address, recommendedUsers);
 
+    console.log("Computing score...")
     const onChainGraphUsersWithScore = recommendedUsers.map(user => calculatingScore(user)).filter(Boolean);
 
-    // finalOnChainGraphUsers can be stored in database
+    console.log("Sorting recommended users by score...")
     return sortByScore(onChainGraphUsersWithScore);
 };

@@ -1,6 +1,6 @@
 import {gql} from "@apollo/client/core";
 
-import {paginatedQuery} from "../../index";
+import {fetchAllPagesQuery} from "../../index";
 import {LensFollowerAddress, RecommendedUser} from "../interfaces/recommended-user";
 import formatLensFollowersData from "../utils/format-lens-followers";
 
@@ -56,7 +56,7 @@ query MyQuery($user: Identity!) {
 
 const fetchLensFollowers = async (address: string, existingUsers: RecommendedUser[] = []): Promise<LensFollowerAddress[]> => {
 
-    const lensFollowersResponse = await paginatedQuery<SocialFollowersData>(socialFollowersQuery, {
+    const lensFollowersResponse = await fetchAllPagesQuery<SocialFollowersData>(socialFollowersQuery, {
         user: address,
     })
 

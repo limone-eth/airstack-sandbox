@@ -1,6 +1,6 @@
 import {gql} from "@apollo/client/core";
 
-import {paginatedQuery} from "../../index";
+import {fetchAllPagesQuery} from "../../index";
 import {FarcasterFollowingAddress, RecommendedUser} from "../interfaces/recommended-user";
 import formatFarcasterFollowingsData from "../utils/format-farcaster-following";
 
@@ -55,7 +55,7 @@ query MyQuery($user: Identity!) {
 `;
 
 const fetchFarcasterFollowings = async (address: string, existingUsers: RecommendedUser[] = []): Promise<FarcasterFollowingAddress[]> => {
-    const farcasterFollowingsResponse = await paginatedQuery<SocialFollowingsData>(socialFollowingsQuery, {
+    const farcasterFollowingsResponse = await fetchAllPagesQuery<SocialFollowingsData>(socialFollowingsQuery, {
         user: address,
     })
     return formatFarcasterFollowingsData(farcasterFollowingsResponse.flatMap(r => r.SocialFollowings?.Following?.flatMap(f => f.followingAddress)).filter(Boolean), existingUsers)

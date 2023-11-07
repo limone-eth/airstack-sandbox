@@ -2,7 +2,12 @@ import {fetchQueryWithPagination} from '@airstack/node';
 import {FetchQuery, Variables} from "@airstack/node/dist/types/types";
 import {DocumentNode} from "@apollo/client/core";
 
-export const paginatedQuery = async <T>(query: DocumentNode, variables?: Variables): Promise<T[]> => {
+/**
+ * Fetch all the pages related to a query on Airstack
+ * @param query - the GraphQL query to perform
+ * @param variables - the variables to include in the query
+ */
+export const fetchAllPagesQuery = async <T>(query: DocumentNode, variables?: Variables): Promise<T[]> => {
     const allData: T[] = [];
 
     // Fetch the first page of data
@@ -12,7 +17,7 @@ export const paginatedQuery = async <T>(query: DocumentNode, variables?: Variabl
     if (response.error) {
         console.error(response.error);
         await delay(1000);
-        return paginatedQuery(query, variables);
+        return fetchAllPagesQuery(query, variables);
     }
 
     // Store the data from the first page
@@ -40,7 +45,7 @@ export const paginatedQuery = async <T>(query: DocumentNode, variables?: Variabl
 
         // Store the data from the current page
         allData.push(response?.data);
-        console.log(allData.length)
+        // console.log(allData.length)
     }
 
     return allData;
