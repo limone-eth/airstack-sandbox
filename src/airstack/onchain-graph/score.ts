@@ -7,9 +7,9 @@ import {
 } from "./interfaces/recommended-user";
 
 const defaultScoreMap = {
-    followedByOnLens: 5,
-    followingOnLens: 7,
-    followedByOnFarcaster: 5,
+    followedByOnLens: 3,
+    followingOnLens: 5,
+    followedByOnFarcaster: 3,
     followingOnFarcaster: 5,
     commonPoaps: 7,
 };
