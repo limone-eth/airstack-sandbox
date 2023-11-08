@@ -20,7 +20,7 @@ const identityMap = (identities) =>
         return acc;
     }, {});
 
-const isBurnedAddress = (address) => {
+const isBurnedAddress = (address: string) => {
     if (!address) {
         return false;
     }
