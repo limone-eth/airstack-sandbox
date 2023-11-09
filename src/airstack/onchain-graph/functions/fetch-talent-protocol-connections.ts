@@ -40,7 +40,10 @@ const allSocialsQuery = gql`
   }
 `;
 
-export const fetchTalentProtocolConnectionsData = async (address: string): Promise<TalentProtocolRecommendedUser[]> => {
+export const fetchTalentProtocolConnectionsData = async (
+  address: string,
+  existingUsers: RecommendedUser[]
+): Promise<TalentProtocolRecommendedUser[]> => {
   const talentProtocolConnections = await fetchTalentProtocolConnections(address);
   const talentProtocolConnectionsAddresses = talentProtocolConnections.map(
     (talentProtocol) => talentProtocol.wallet_address
@@ -55,10 +58,14 @@ export const fetchTalentProtocolConnectionsData = async (address: string): Promi
       const matchingConnection = talentProtocolConnections.find((tpc) =>
         tp.userAddressDetails.addresses.some((addr) => addr === tpc.wallet_address)
       );
+      if (!matchingConnection) {
+        return null;
+      }
       return {
         ...tp.userAddressDetails,
         ...(matchingConnection ? { connectionType: matchingConnection.connection_type } : {}),
       };
-    });
-  return formatTalentProtocolConnectionsData(talentProtocolConnectionSocial);
+    })
+    .filter(Boolean);
+  return formatTalentProtocolConnectionsData(talentProtocolConnectionSocial, existingUsers);
 };

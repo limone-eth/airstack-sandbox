@@ -32,7 +32,10 @@ export function formatTalentProtocolConnectionsData(
       recommendedUsers[existingUserIndex] = {
         ...talentProtocolConnection,
         ...recommendedUsers[existingUserIndex],
-        follows,
+        follows: {
+          ...follows,
+          ...talentProtocolConnectionTypeToFollowObject(talentProtocolConnection.connectionType),
+        },
       };
     } else {
       // If the follower is not in the recommendedUsers array, add them
