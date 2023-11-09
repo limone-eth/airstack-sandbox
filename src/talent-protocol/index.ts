@@ -28,6 +28,49 @@ export interface TalentProtocolConnection {
 export const paginateTalentProtocolApiRequest = async <T>(
   method: Method,
   url: string,
+  queryParams: { key: string; value: string }[] = [],
+  handleResponse: (data: any) => { items: T[]; nextCursor?: string }
+): Promise<T[]> => {
+  let result: T[] = [];
+  const parsedUrl = new URL(url);
+
+  // Append query parameters to the URL
+  queryParams.forEach((param) => {
+    parsedUrl.searchParams.append(param.key, param.value);
+  });
+
+  let response;
+  do {
+    const config: AxiosRequestConfig = {
+      method,
+      url: parsedUrl.href,
+      headers: { 'X-API-KEY': process.env.TALENT_PROTOCOL_API_KEY },
+    };
+
+    // Make the request using the config
+    // eslint-disable-next-line no-await-in-loop
+    response = await axios.request(config).catch((e) => {
+      console.error(e);
+      return null;
+    });
+
+    if (!response) break;
+
+    const { items, nextCursor } = handleResponse(response.data);
+    result = result.concat(items);
+
+    // Update the URL with the new cursor if it exists
+    if (nextCursor) {
+      parsedUrl.searchParams.set('next_cursor', nextCursor);
+    }
+  } while (response && response.data && response.data.length > 0 && handleResponse(response.data).nextCursor);
+
+  return result;
+};
+
+/* export const paginateTalentProtocolApiRequest = async <T>(
+  method: Method,
+  url: string,
   queryParams: { key: string; value: string }[] = []
 ): Promise<T[]> => {
   let result: T[] = [];
@@ -62,7 +105,7 @@ export const paginateTalentProtocolApiRequest = async <T>(
   } while (response.data.connections.length > 0 && response.data.pagination?.next_cursor);
 
   return result;
-};
+}; */
 
 export const fetchTalentProtocolConnections = async (address: string): Promise<TalentProtocolConnection[]> =>
   paginateTalentProtocolApiRequest<TalentProtocolConnection>(
@@ -73,7 +116,12 @@ export const fetchTalentProtocolConnections = async (address: string): Promise<T
         key: 'id',
         value: address,
       },
-    ]
+    ],
+    (data) => {
+      const items = data.connections || [];
+      const nextCursor = data.pagination?.next_cursor;
+      return { items, nextCursor };
+    }
   );
 
 export const talentProtocolConnectionTypeToFollowObject = (
