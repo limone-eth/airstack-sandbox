@@ -1,4 +1,4 @@
-import { TalentProtocolConnectionType } from '../../../talent-protocol';
+import { TalentProtocolConnection, TalentProtocolConnectionType } from "../../../talent-protocol";
 
 export interface FollowLens {
   followingOnLens: boolean;
@@ -15,7 +15,7 @@ export interface FollowTalentProtocol {
   followedOnTalentProtocol: boolean;
 }
 
-export interface RecommendedUser {
+export interface OnChainRecommendedUser {
   addresses?: string[];
   domains?: {
     name: string;
@@ -32,14 +32,17 @@ export interface RecommendedUser {
   xmtp?: {
     isXMTPEnabled?: boolean;
   };
+  talentProtocol?: TalentProtocolConnection;
+  _score?: number;
 }
 
-export interface TalentProtocolRecommendedUser extends RecommendedUser {
+export interface TalentProtocolRecommendedUser extends OnChainRecommendedUser {
   follows?: FollowTalentProtocol;
   connectionType?: TalentProtocolConnectionType;
+  talentProtocol?: TalentProtocolConnection;
 }
 
-export interface PoapRecommendedUser extends RecommendedUser {
+export interface PoapRecommendedUser extends OnChainRecommendedUser {
   poaps?: {
     name: string;
     image?: string;
@@ -47,7 +50,7 @@ export interface PoapRecommendedUser extends RecommendedUser {
   }[];
 }
 
-export interface FarcasterFollowerAddress extends RecommendedUser {
+export interface FarcasterFollowerAddress extends OnChainRecommendedUser {
   mutualFollowing?: {
     Follower: {
       followingAddress: {
@@ -60,7 +63,7 @@ export interface FarcasterFollowerAddress extends RecommendedUser {
   follows?: FollowFarcaster;
 }
 
-export interface FarcasterFollowingAddress extends RecommendedUser {
+export interface FarcasterFollowingAddress extends OnChainRecommendedUser {
   mutualFollowing?: {
     Following: {
       followerAddress: {
@@ -73,7 +76,7 @@ export interface FarcasterFollowingAddress extends RecommendedUser {
   follows?: FollowFarcaster;
 }
 
-export interface LensFollowerAddress extends RecommendedUser {
+export interface LensFollowerAddress extends OnChainRecommendedUser {
   mutualFollowing?: {
     Following: {
       followingAddress: {
@@ -86,7 +89,7 @@ export interface LensFollowerAddress extends RecommendedUser {
   follows?: FollowLens;
 }
 
-export interface LensFollowingAddress extends RecommendedUser {
+export interface LensFollowingAddress extends OnChainRecommendedUser {
   mutualFollowing?: {
     Following: {
       followerAddress: {

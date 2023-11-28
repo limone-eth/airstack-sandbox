@@ -1,23 +1,23 @@
-import {gql} from "@apollo/client/core";
+import { gql } from "@apollo/client/core";
 
-import {fetchAllPagesQuery} from "../../index";
-import {LensFollowingAddress, RecommendedUser} from "../interfaces/recommended-user";
+import { fetchAllPagesQuery } from "../../index";
+import { LensFollowingAddress, OnChainRecommendedUser } from "../interfaces/on-chain-recommended-user";
 import formatLensFollowingsData from "../utils/format-lens-followings";
 
 interface Following {
-    followingAddress: LensFollowingAddress;
+  followingAddress: LensFollowingAddress;
 }
 
 interface SocialFollowingsData {
-    SocialFollowings: {
-        Following: Following[];
-    };
+  SocialFollowings: {
+    Following: Following[];
+  };
 }
 
 const socialFollowingsQuery = gql`
-query MyQuery($user: Identity!) {
+  query MyQuery($user: Identity!) {
     SocialFollowings(
-      input: {filter: {identity: {_eq: $user}, dappName: {_eq: lens}}, blockchain: ALL, limit: 200}
+      input: { filter: { identity: { _eq: $user }, dappName: { _eq: lens } }, blockchain: ALL, limit: 200 }
     ) {
       Following {
         followingAddress {
@@ -37,9 +37,7 @@ query MyQuery($user: Identity!) {
           xmtp {
             isXMTPEnabled
           }
-          mutualFollower: socialFollowers(
-            input: {filter: {identity: {_eq: $user}, dappName: {_eq: lens}}}
-          ) {
+          mutualFollower: socialFollowers(input: { filter: { identity: { _eq: $user }, dappName: { _eq: lens } } }) {
             Follower {
               followerAddress {
                 socials {
@@ -54,12 +52,19 @@ query MyQuery($user: Identity!) {
   }
 `;
 
-const fetchLensFollowings = async (address: string, existingUsers: RecommendedUser[] = []): Promise<LensFollowingAddress[]> => {
-
-    const lensFollowingsResponse = await fetchAllPagesQuery<SocialFollowingsData>(socialFollowingsQuery, {
-        user: address,
-    })
-    return formatLensFollowingsData(lensFollowingsResponse.flatMap(r => r.SocialFollowings?.Following?.flatMap(f => f.followingAddress)).filter(Boolean), existingUsers)
+const fetchLensFollowings = async (
+  address: string,
+  existingUsers: OnChainRecommendedUser[] = []
+): Promise<LensFollowingAddress[]> => {
+  const lensFollowingsResponse = await fetchAllPagesQuery<SocialFollowingsData>(socialFollowingsQuery, {
+    user: address
+  });
+  return formatLensFollowingsData(
+    lensFollowingsResponse
+      .flatMap(r => r.SocialFollowings?.Following?.flatMap(f => f.followingAddress))
+      .filter(Boolean),
+    existingUsers
+  );
 };
 
 export default fetchLensFollowings;

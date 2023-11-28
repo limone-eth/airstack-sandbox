@@ -1,9 +1,13 @@
-import { FarcasterFollowingAddress, FollowFarcaster, RecommendedUser } from '../interfaces/recommended-user';
+import {
+  FarcasterFollowingAddress,
+  FollowFarcaster,
+  OnChainRecommendedUser
+} from "../interfaces/on-chain-recommended-user";
 
 // Function to format Farcaster followings data
 function formatFarcasterFollowingsData(
   followings: FarcasterFollowingAddress[],
-  existingUsers: RecommendedUser[] = []
+  existingUsers: OnChainRecommendedUser[] = []
 ): FarcasterFollowingAddress[] {
   if (!followings || followings?.length === 0) {
     return [...existingUsers];
@@ -17,7 +21,7 @@ function formatFarcasterFollowingsData(
     const following = followings[i];
     // Find the index of the following in the recommended users list
     const existingUserIndex = recommendedUsers.findIndex(({ addresses: recommendedUserAddresses }) =>
-      recommendedUserAddresses?.some((address) => following.addresses?.includes(address))
+      recommendedUserAddresses?.some(address => following.addresses?.includes(address))
     );
 
     // Check if the following follows back
@@ -28,7 +32,7 @@ function formatFarcasterFollowingsData(
       // Get the existing follows object or an empty object if it doesn't exist
       const follows: FollowFarcaster = recommendedUsers[existingUserIndex]?.follows ?? {
         followedOnFarcaster: false,
-        followingOnFarcaster: false,
+        followingOnFarcaster: false
       };
 
       // Update the existing user with the new following data
@@ -38,18 +42,17 @@ function formatFarcasterFollowingsData(
         follows: {
           ...(follows || {}),
           followingOnFarcaster: true,
-          followedOnFarcaster: followsBack,
-        },
+          followedOnFarcaster: followsBack
+        }
       };
-      console.log(recommendedUsers[existingUserIndex].follows);
     } else {
       // If the following is not in the recommended users list, add it
       recommendedUsers.push({
         ...following,
         follows: {
           followingOnFarcaster: true,
-          followedOnFarcaster: followsBack,
-        },
+          followedOnFarcaster: followsBack
+        }
       });
     }
   }

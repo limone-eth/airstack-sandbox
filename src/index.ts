@@ -15,6 +15,9 @@ export const main = async () => {
   console.log(`Fetching Onchain Graph Data for ${address}`);
   const recommendedUsers = await fetchOnChainGraphData(address);
 
+  const top30users = recommendedUsers.slice(0, 30);
+  console.log(top30users);
+
   console.timeEnd('start');
   return recommendedUsers;
 };
